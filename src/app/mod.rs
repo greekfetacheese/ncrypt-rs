@@ -1,23 +1,17 @@
 use eframe::{
     egui::{
         CentralPanel,
-        Color32,
         Context,
         Frame,
         Margin,
         Rgba,
-        Rounding,
         SidePanel,
-        Stroke,
-        Ui,
         Visuals,
-        Style,
     },
     CreationContext,
 };
 use encryption::zeroize::Zeroize;
-
-use std::time::Duration;
+use egui_theme::{Theme, ThemeKind};
 use crate::gui::{ central_panel, left_panel, right_panel, GUI };
 use window::window_frame;
 
@@ -26,41 +20,19 @@ pub mod window;
 /// The main application struct
 pub struct NCryptApp {
     pub gui: GUI,
+    pub on_startup: bool,
 }
 
 impl NCryptApp {
     pub fn new(cc: &CreationContext) -> Self {
-        let ctx = cc.egui_ctx.clone();
-        std::thread::spawn(move || request_repaint(ctx));
-
+        let theme = Theme::new(ThemeKind::Midnight);
         let app = Self {
-            gui: GUI::new(),
+            gui: GUI::new(theme.clone()),
+            on_startup: true,
         };
 
-        Self::set_style(&cc.egui_ctx);
-
+        cc.egui_ctx.set_style(theme.style);
         app
-    }
-
-    fn set_style(ctx: &Context) {
-        let visuals = Visuals::dark();
-        let mut style = Style::default();
-
-        style.visuals = visuals;
-
-        // Bg color of widgets like TextEdit
-        style.visuals.extreme_bg_color = Color32::TRANSPARENT;
-
-        // Hide the separator lines
-        style.visuals.widgets.noninteractive.bg_stroke = Stroke::NONE;
-
-        // Widgets rounding
-        style.visuals.widgets.inactive.rounding = Rounding::same(5.0);
-
-        // Widgets Stroke
-        style.visuals.widgets.inactive.bg_stroke = Stroke::new(1.0, Color32::WHITE);
-
-        ctx.set_style(style)
     }
 }
 
@@ -70,10 +42,14 @@ impl eframe::App for NCryptApp {
     }
 
     fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
-        window_frame(ctx, "nCrypt 1.0.0", |ui| {
-            apply_visuals(ui);
+        let bg_color = self.gui.theme.colors.bg_color;
+        let frame = Frame::none().fill(bg_color);
 
-            let frame = Frame::none().fill(Color32::from_hex("#212529").unwrap());
+        window_frame(ctx, frame, "nCrypt 1.0.0", |ui| {
+            if self.on_startup {
+                ctx.set_style(self.gui.theme.style.clone());
+                self.on_startup = false;
+            }
 
             // UI that belongs to the right panel
             SidePanel::right("right_panel")
@@ -114,34 +90,4 @@ impl eframe::App for NCryptApp {
         self.gui.text_hashing_ui.input_text.zeroize();
         self.gui.text_hashing_ui.output_hash.zeroize();
     }
-}
-
-/// Request repaint every 32ms (30 FPS) only if the Viewport is not minimized.
-fn request_repaint(ctx: Context) {
-    let duration = Duration::from_millis(32);
-
-    loop {
-        let is_minimized = ctx.input(|i| i.viewport().minimized.unwrap_or(false));
-
-        if !is_minimized {
-            ctx.request_repaint();
-        }
-        std::thread::sleep(duration);
-    }
-}
-
-pub fn apply_visuals(ui: &mut Ui) {
-    ui.visuals_mut().dark_mode = true;
-
-    // Bg color of widgets like TextEdit
-    ui.visuals_mut().extreme_bg_color = Color32::TRANSPARENT;
-
-    // Hide the separator lines
-    ui.visuals_mut().widgets.noninteractive.bg_stroke = Stroke::NONE;
-
-    // Widgets rounding
-    ui.visuals_mut().widgets.inactive.rounding = Rounding::same(5.0);
-
-    // Widgets Stroke
-    ui.visuals_mut().widgets.inactive.bg_stroke = Stroke::new(1.0, Color32::WHITE);
 }

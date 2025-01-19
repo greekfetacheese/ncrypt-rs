@@ -9,8 +9,9 @@ edition = "2021"
 [dependencies]
 
 # GUI
-eframe = "0.29.1"
+eframe = "0.30.0"
 rfd = "0.14.1"
+egui-theme = {git = "https://github.com/greekfetacheese/egui-theme.git", branch = "master"}
 
 # Local crates
 encryption = { path = "crates/encryption" }

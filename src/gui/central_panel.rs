@@ -1,4 +1,4 @@
-use eframe::egui::{ vec2, Align2, Color32, Frame, Ui, Vec2b, Window };
+use eframe::egui::{ vec2, Align2, Frame, Ui, Vec2b, Window };
 use std::sync::{ Arc, RwLock };
 use super::{ui::*, GUI};
 
@@ -11,8 +11,8 @@ pub fn show(ui: &mut Ui, gui: &mut GUI) {
     ui.add_space(90.0);
 
     ui.vertical_centered(|ui| {
-    gui.encryption_ui.show(ui);
-    gui.text_hashing_ui.show(ui);
+    gui.encryption_ui.show(&gui.theme, ui);
+    gui.text_hashing_ui.show(&gui.theme, ui);
     });
 
 });
@@ -39,7 +39,7 @@ pub fn window_msg(ui: &mut Ui, pop_msg: Arc<RwLock<WindowMsg>>) {
         .anchor(Align2::CENTER_CENTER, [0.0, 0.0])
         .collapsible(false)
         .resizable(Vec2b::new(false, false))
-        .frame(Frame::window(&ui.style().clone()).fill(Color32::from_hex("#212529").unwrap()))
+        .frame(Frame::window(&ui.style().clone()))
         .show(ui.ctx(), |ui| {
             ui.set_min_size(vec2(300.0, 150.0));
 
@@ -48,7 +48,7 @@ pub fn window_msg(ui: &mut Ui, pop_msg: Arc<RwLock<WindowMsg>>) {
 
                 ui.label(rich_text(msg).size(14.0));
 
-                let button = button(rich_text("Ok").color(Color32::BLACK));
+                let button = button(rich_text("Ok").size(15.0)).min_size((40.0, 25.0).into());
                 
                 if ui.add(button).clicked() {
                     let mut pop_msg = pop_msg.write().unwrap();

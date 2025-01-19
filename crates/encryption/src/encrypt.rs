@@ -16,7 +16,7 @@ use bincode;
 /*
 █████████████████████████████████████████████████████████████████████████
 █                                                                       █
-█                           nCrypt File Format                         █
+█                           nCrypt File Format                          █
 █                                                                       █
 █    ┌───────────┬───────────────┬───────────────┬────────────────────┐ █
 █    │ Header    │ Metadata Len  │ Metadata      │ Encrypted Data     │ █
@@ -28,13 +28,10 @@ use bincode;
 █     and version (e.g., "nCrypt1\0").                                  █
 █   - **Metadata Length**: A 4-byte unsigned integer in little-endian   █
 █     format specifying the size of the metadata section.               █
-█   - **Metadata**: Serialized metadata containing Argon2 parameters,  █
+█   - **Metadata**: Serialized metadata containing Argon2 parameters,   █
 █     salt, nonce, etc. (encoded using `bincode`).                      █
 █   - **Encrypted Data**: The raw encrypted data.                       █
 █                                                                       █
-█   Example (hex representation):                                       █
-█   [6E 43 72 79 70 74 31 00]  [12 00 00 00]  [Serialized Metadata]    █
-█   [Encrypted Data]                                                    █
 █                                                                       █
 █████████████████████████████████████████████████████████████████████████
 */

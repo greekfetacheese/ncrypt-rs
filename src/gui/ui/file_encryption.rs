@@ -1,7 +1,8 @@
-use eframe::egui::{ Color32, Ui, Slider };
+use eframe::egui::{ Ui, Slider };
 use num_format::{ Locale, ToFormattedString };
 use std::sync::{ Arc, RwLock };
 use encryption::prelude::*;
+use egui_theme::Theme;
 use super::*;
 
 const FILE_EXTENSION: &str = ".ncrypt";
@@ -30,13 +31,13 @@ impl FileEncryptionUi {
         }
     }
 
-    pub fn show(&mut self, ui: &mut Ui) {
+    pub fn show(&mut self, theme: &Theme, ui: &mut Ui) {
         if !self.open {
             return;
         }
 
             self.open_file_button(ui);
-            self.credentials_input(ui);
+            self.credentials_input(theme, ui);
 
             ui.horizontal(|ui| {
                 ui.add_space(160.0);
@@ -49,8 +50,9 @@ impl FileEncryptionUi {
     }
 
     fn encrypt(&mut self, ui: &mut Ui) {
-        let text = rich_text("Encrypt").color(Color32::BLACK);
+        let text = rich_text("Encrypt");
         let button = button(text);
+        let ctx = ui.ctx().clone();
 
         if ui.add(button).clicked() {
             {
@@ -68,10 +70,13 @@ impl FileEncryptionUi {
                 let data = match std::fs::read(file_path.clone()) {
                     Ok(data) => data,
                     Err(e) => {
+                        {
                         let mut pop_msg = pop_msg.write().unwrap();
                         pop_msg.open = true;
                         pop_msg.title = "Failed to read file".to_string();
                         pop_msg.message = format!("{:?}", e);
+                        }
+                        ctx.request_repaint();
                         return;
                     }
                 };
@@ -79,10 +84,13 @@ impl FileEncryptionUi {
                 let encrypted_data = match encrypt_data(argon_params.clone(), data, credentials) {
                     Ok(data) => data,
                     Err(e) => {
+                        {
                         let mut pop_msg = pop_msg.write().unwrap();
                         pop_msg.open = true;
                         pop_msg.title = "Failed to encrypt file".to_string();
                         pop_msg.message = format!("{:?}", e);
+                        }
+                        ctx.request_repaint();
                         return;
                     }
                 };
@@ -91,17 +99,23 @@ impl FileEncryptionUi {
 
                 match std::fs::write(&new_file_path, &encrypted_data) {
                     Ok(_) => {
+                        {
                         let mut pop_msg = pop_msg.write().unwrap();
                         pop_msg.open = true;
                         pop_msg.title = "Success".to_string();
                         pop_msg.message =
                             format!("File encrypted successfully to: {}", new_file_path);
+                        }
+                        ctx.request_repaint();
                     }
                     Err(e) => {
+                        {
                         let mut pop_msg = pop_msg.write().unwrap();
                         pop_msg.open = true;
                         pop_msg.title = "Failed to save the encrypted file".to_string();
                         pop_msg.message = format!("{:?}", e);
+                        }
+                        ctx.request_repaint();
                     }
                 }
             });
@@ -109,8 +123,9 @@ impl FileEncryptionUi {
     }
 
     fn decrypt(&mut self, ui: &mut Ui) {
-        let text = rich_text("Decrypt").color(Color32::BLACK);
+        let text = rich_text("Decrypt");
         let button = button(text);
+        let ctx = ui.ctx().clone();
 
         if ui.add(button).clicked() {
             {
@@ -127,10 +142,13 @@ impl FileEncryptionUi {
                 let data = match std::fs::read(file_path.clone()) {
                     Ok(data) => data,
                     Err(e) => {
+                        {
                         let mut pop_msg = pop_msg.write().unwrap();
                         pop_msg.open = true;
                         pop_msg.title = "Failed to read file".to_string();
                         pop_msg.message = format!("{:?}", e);
+                        }
+                        ctx.request_repaint();
                         return;
                     }
                 };
@@ -138,10 +156,13 @@ impl FileEncryptionUi {
                 let decrypted_data = match decrypt_data(data, credentials) {
                     Ok(data) => data,
                     Err(e) => {
+                        {
                         let mut pop_msg = pop_msg.write().unwrap();
                         pop_msg.open = true;
                         pop_msg.title = "Failed to decrypt file".to_string();
                         pop_msg.message = format!("{:?}", e);
+                        }
+                        ctx.request_repaint();
                         return;
                     }
                 };
@@ -151,17 +172,23 @@ impl FileEncryptionUi {
 
                 match std::fs::write(&new_file_path, &decrypted_data) {
                     Ok(_) => {
+                        {
                         let mut pop_msg = pop_msg.write().unwrap();
                         pop_msg.open = true;
                         pop_msg.title = "Success".to_string();
                         pop_msg.message =
                             format!("File decrypted successfully to: {}", new_file_path);
+                        }
+                        ctx.request_repaint();
                     }
                     Err(e) => {
+                        {
                         let mut pop_msg = pop_msg.write().unwrap();
                         pop_msg.open = true;
                         pop_msg.title = "Failed to save decrypted file".to_string();
                         pop_msg.message = format!("{:?}", e);
+                        }
+                        ctx.request_repaint();
                     }
                 }
             });
@@ -169,7 +196,7 @@ impl FileEncryptionUi {
     }
 
     fn open_file_button(&mut self, ui: &mut Ui) {
-        let text = rich_text("Choose a File").color(Color32::BLACK);
+        let text = rich_text("Choose a File");
         let button = button(text);
 
         ui.spacing_mut().item_spacing.y = 15.0;
@@ -186,8 +213,11 @@ impl FileEncryptionUi {
         ui.add_space(15.0);
     }
 
-    fn credentials_input(&mut self, ui: &mut Ui) {
+    fn credentials_input(&mut self, theme: &Theme, ui: &mut Ui) {
         ui.spacing_mut().item_spacing.y = 15.0;
+        egui_theme::utils::border_on_idle(ui, 1.0, theme.colors.border_color_idle);
+        egui_theme::utils::border_on_hover(ui, 1.0, theme.colors.border_color_hover);
+        egui_theme::utils::border_on_click(ui, 1.0, theme.colors.border_color_click);
 
         ui.label(rich_text("Enter Your Credentials"));
 

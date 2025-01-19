@@ -1,4 +1,5 @@
 use eframe::egui::{ Ui, ComboBox, TextEdit, Color32, FontSelection, FontId };
+use egui_theme::Theme;
 use super::rich_text;
 use sha3::{ Digest, Sha3_224, Sha3_256, Sha3_384, Sha3_512 };
 
@@ -49,7 +50,7 @@ impl TextHashingUi {
         }
     }
 
-    pub fn show(&mut self, ui: &mut Ui) {
+    pub fn show(&mut self, theme: &Theme, ui: &mut Ui) {
         if !self.open {
             return;
         }
@@ -58,8 +59,11 @@ impl TextHashingUi {
         let font_2 = FontSelection::FontId(FontId::monospace(13.0));
 
         ui.spacing_mut().item_spacing.y = 10.0;
-
         self.select_algorithm(ui);
+
+        egui_theme::utils::border_on_idle(ui, 1.0, theme.colors.border_color_idle);
+        egui_theme::utils::border_on_hover(ui, 1.0, theme.colors.border_color_hover);
+        egui_theme::utils::border_on_click(ui, 1.0, theme.colors.border_color_click);
 
         ui.label(rich_text("Input Text").size(16.0));
 
@@ -68,7 +72,7 @@ impl TextHashingUi {
             .desired_rows(10)
             .text_color(Color32::WHITE)
             .font(font);
-        ui.add(input_edit);
+        let input_res = ui.add(input_edit);
 
         ui.label(rich_text("Hash Output").size(16.0));
 
@@ -79,14 +83,19 @@ impl TextHashingUi {
             .font(font_2);
         ui.add(output_edit);
 
-        if !self.input_text.is_empty() {
+        if input_res.changed() {
             self.calculate_hash();
-        } else {
+        }
+
+        if self.input_text.is_empty() {
             self.output_hash.clear();
         }
     }
 
     pub fn calculate_hash(&mut self) {
+        if self.input_text.is_empty() {
+            return;
+        }
         if self.algorithm == HashAlgorithm::Sha3_224 {
             let mut hasher = Sha3_224::new();
             hasher.update(self.input_text.as_bytes());
@@ -125,6 +134,7 @@ impl TextHashingUi {
 
                     if value.clicked() {
                         self.algorithm = selected_algorithm.clone();
+                        self.calculate_hash();
                     }
                 }
             });

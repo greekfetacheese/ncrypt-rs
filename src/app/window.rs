@@ -1,19 +1,10 @@
-use eframe::egui::{self, CentralPanel, Color32, Margin, Stroke, UiBuilder, ViewportCommand};
+use eframe::egui::{self, CentralPanel, Color32, Frame, Stroke, UiBuilder, ViewportCommand};
 
 
 /// A Custom window frame for the App
-pub fn window_frame(ctx: &egui::Context, title: &str, add_contents: impl FnOnce(&mut egui::Ui)) {
+pub fn window_frame(ctx: &egui::Context, frame: Frame, title: &str, add_contents: impl FnOnce(&mut egui::Ui)) {
     
-    let panel_frame = egui::Frame {
-        fill: Color32::from_hex("#212529").unwrap(),
-        rounding: 10.0.into(),
-        stroke: ctx.style().visuals.widgets.noninteractive.fg_stroke,
-        outer_margin: 0.5.into(), // so the stroke is within the bounds
-        inner_margin: Margin { left: 0.0, right: 0.0, top: 0.0, bottom: 0.0},
-        ..Default::default()
-    };
-
-    CentralPanel::default().frame(panel_frame).show(ctx, |ui| {
+    CentralPanel::default().frame(frame).show(ctx, |ui| {
         ui.visuals_mut().widgets.noninteractive.bg_stroke = Stroke::NONE;
 
         let app_rect = ui.max_rect();

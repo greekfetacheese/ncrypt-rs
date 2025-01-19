@@ -1,4 +1,4 @@
-use eframe::egui::{Button, Color32, TextEdit, RichText, Sense, WidgetText};
+use eframe::egui::{Button, TextEdit, RichText, Sense, WidgetText};
 
 pub mod file_encryption;
 pub mod text_hashing;
@@ -24,16 +24,15 @@ impl Default for WindowMsg {
 pub fn rich_text(text: impl Into<String>) -> RichText {
     RichText::new(text)
         .size(13.0)
-        .color(Color32::WHITE)
 }
 
 pub fn button(text: impl Into<WidgetText>) -> Button<'static> {
     Button::new(text)
         .sense(Sense::click())
+        .min_size((40.0, 25.0).into())
 }
 
 pub fn text_edit(text: &mut String) -> TextEdit<'_> {
     TextEdit::singleline(text)
         .desired_width(200.0)
-        .text_color(Color32::WHITE)
 }
