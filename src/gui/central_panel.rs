@@ -1,4 +1,4 @@
-use eframe::egui::{ vec2, Align2, Frame, Ui, Vec2b, Window };
+use eframe::egui::{ vec2, Align2, Button, Frame, RichText, Ui, Vec2b, Window };
 use std::sync::{ Arc, RwLock };
 use super::{ui::*, GUI};
 
@@ -35,7 +35,7 @@ pub fn window_msg(ui: &mut Ui, pop_msg: Arc<RwLock<WindowMsg>>) {
         title = pop_msg.title.clone();
     }
 
-    Window::new(rich_text(title).size(16.0))
+    Window::new(RichText::new(title).size(16.0))
         .anchor(Align2::CENTER_CENTER, [0.0, 0.0])
         .collapsible(false)
         .resizable(Vec2b::new(false, false))
@@ -46,9 +46,9 @@ pub fn window_msg(ui: &mut Ui, pop_msg: Arc<RwLock<WindowMsg>>) {
             ui.vertical_centered(|ui| {
                 ui.spacing_mut().item_spacing.y = 15.0;
 
-                ui.label(rich_text(msg).size(14.0));
+                ui.label(RichText::new(msg).size(14.0));
 
-                let button = button(rich_text("Ok").size(15.0)).min_size((40.0, 25.0).into());
+                let button = Button::new(RichText::new("Ok").size(15.0)).min_size((40.0, 25.0).into());
                 
                 if ui.add(button).clicked() {
                     let mut pop_msg = pop_msg.write().unwrap();

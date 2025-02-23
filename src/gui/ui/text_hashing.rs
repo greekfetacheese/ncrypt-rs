@@ -1,6 +1,5 @@
-use eframe::egui::{ Ui, ComboBox, TextEdit, Color32, FontSelection, FontId };
+use eframe::egui::{ Ui, ComboBox, TextEdit, RichText, Color32, FontSelection, FontId };
 use egui_theme::Theme;
-use super::rich_text;
 use sha3::{ Digest, Sha3_224, Sha3_256, Sha3_384, Sha3_512 };
 
 #[derive(Clone, PartialEq, Eq)]
@@ -65,7 +64,7 @@ impl TextHashingUi {
         egui_theme::utils::border_on_hover(ui, 1.0, theme.colors.border_color_hover);
         egui_theme::utils::border_on_click(ui, 1.0, theme.colors.border_color_click);
 
-        ui.label(rich_text("Input Text").size(16.0));
+        ui.label(RichText::new("Input Text").size(16.0));
 
         let input_edit = TextEdit::multiline(&mut self.input_text)
             .desired_width(300.0)
@@ -74,7 +73,7 @@ impl TextHashingUi {
             .font(font);
         let input_res = ui.add(input_edit);
 
-        ui.label(rich_text("Hash Output").size(16.0));
+        ui.label(RichText::new("Hash Output").size(16.0));
 
         let output_edit = TextEdit::multiline(&mut self.output_hash)
             .desired_width(300.0)

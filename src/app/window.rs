@@ -1,4 +1,4 @@
-use eframe::egui::{self, CentralPanel, Color32, Frame, Stroke, UiBuilder, ViewportCommand};
+use eframe::egui::{self, CentralPanel, Frame, Stroke, UiBuilder, ViewportCommand};
 
 
 /// A Custom window frame for the App
@@ -79,45 +79,27 @@ fn title_bar_ui(ui: &mut egui::Ui, title_bar_rect: eframe::epaint::Rect, title: 
             ui.spacing_mut().item_spacing.x = 10.0;
             ui.visuals_mut().button_frame = false;
             ui.add_space(8.0);
-            close_maximize_minimize(ui);
+            close_minimize(ui);
         });
     });
 }
 
 
-/// Show some close/maximize/minimize buttons for the native window.
-fn close_maximize_minimize(ui: &mut egui::Ui) {
+/// Show some close/minimize buttons for the native window.
+fn close_minimize(ui: &mut egui::Ui) {
     use egui::{Button, RichText};
 
     let button_height = 18.0;
 
     let close_response = ui
-        .add(Button::new(RichText::new("❌").size(button_height).color(Color32::WHITE)))
+        .add(Button::new(RichText::new("❌").size(button_height)))
         .on_hover_text("Close the window");
     if close_response.clicked() {
         ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
     }
 
-    let is_maximized = ui.input(|i| i.viewport().maximized.unwrap_or(false));
-    if is_maximized {
-        let maximized_response = ui
-            .add(Button::new(RichText::new("🗗").size(button_height).color(Color32::WHITE)))
-            .on_hover_text("Restore window");
-        if maximized_response.clicked() {
-            ui.ctx()
-                .send_viewport_cmd(ViewportCommand::Maximized(false));
-        }
-    } else {
-        let maximized_response = ui
-            .add(Button::new(RichText::new("🗗").size(button_height).color(Color32::WHITE)))
-            .on_hover_text("Maximize window");
-        if maximized_response.clicked() {
-            ui.ctx().send_viewport_cmd(ViewportCommand::Maximized(true));
-        }
-    }
-
     let minimized_response = ui
-        .add(Button::new(RichText::new("🗕").size(button_height).color(Color32::WHITE)))
+        .add(Button::new(RichText::new("🗕").size(button_height)))
         .on_hover_text("Minimize the window");
     if minimized_response.clicked() {
         ui.ctx().send_viewport_cmd(ViewportCommand::Minimized(true));
