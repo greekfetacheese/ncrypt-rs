@@ -215,39 +215,36 @@ impl FileEncryptionUi {
 
     fn credentials_input(&mut self, theme: &Theme, ui: &mut Ui) {
         ui.scope(|ui| {
-    
-        ui.spacing_mut().item_spacing.y = 15.0;
-        egui_theme::utils::border_on_idle(ui, 1.0, theme.colors.border_color_idle);
-        egui_theme::utils::border_on_hover(ui, 1.0, theme.colors.border_color_hover);
-        egui_theme::utils::border_on_click(ui, 1.0, theme.colors.border_color_click);
+            ui.spacing_mut().item_spacing.y = 15.0;
+            egui_theme::utils::border_on_idle(ui, 1.0, theme.colors.border_color_idle);
+            egui_theme::utils::border_on_hover(ui, 1.0, theme.colors.border_color_hover);
+            egui_theme::utils::border_on_click(ui, 1.0, theme.colors.border_color_click);
 
-        ui.label(RichText::new("Enter Your Credentials").size(18.0));
+            ui.label(RichText::new("Enter Your Credentials").size(18.0));
 
-        ui.label(RichText::new("Username:").size(16.0));
+            ui.label(RichText::new("Username:").size(16.0));
 
-        // username input
-        ui.add(TextEdit::singleline(self.credentials.user_mut()).min_size((200.0, 25.0).into()));
+            // username input
+            self.credentials.user_mut(|username| {
+                ui.add(TextEdit::singleline(username).min_size((200.0, 25.0).into()));
+            });
 
-        ui.label(RichText::new("Password:").size(16.0));
+            ui.label(RichText::new("Password:").size(16.0));
 
-        // password input
-        ui.add(
-            TextEdit::singleline(self.credentials.passwd_mut())
-                .min_size((200.0, 25.0).into())
-                .password(true)
-        );
+            // password input
+            self.credentials.passwd_mut(|passwd| {
+                ui.add(TextEdit::singleline(passwd).min_size((200.0, 25.0).into()).password(true));
+            });
 
-        ui.label(RichText::new("Confrim Password:").size(16.0));
+            ui.label(RichText::new("Confrim Password:").size(16.0));
 
-        // confirm password input
-        ui.add(
-            TextEdit::singleline(self.credentials.confirm_passwd_mut())
-                .min_size((200.0, 25.0).into())
-                .password(true)
-        );
+            // confirm password input
+            self.credentials.confirm_passwd_mut(|passwd| {
+                ui.add(TextEdit::singleline(passwd).min_size((200.0, 25.0).into()).password(true));
+            });
 
-        ui.add_space(15.0);
-    });
+            ui.add_space(15.0);
+        });
     }
 
     pub fn argon_params_ui(&mut self, ui: &mut Ui) {

@@ -1,6 +1,7 @@
 use eframe::egui::{ Ui, ComboBox, TextEdit, RichText, Color32, FontSelection, FontId };
 use egui_theme::Theme;
 use sha3::{ Digest, Sha3_224, Sha3_256, Sha3_384, Sha3_512 };
+use ncrypt_me::SecureString;
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum HashAlgorithm {
@@ -35,8 +36,8 @@ impl HashAlgorithm {
 pub struct TextHashingUi {
     pub open: bool,
     pub algorithm: HashAlgorithm,
-    pub input_text: String,
-    pub output_hash: String,
+    pub input_text: SecureString,
+    pub output_hash: SecureString,
 }
 
 impl TextHashingUi {
@@ -44,8 +45,8 @@ impl TextHashingUi {
         Self {
             open: false,
             algorithm: HashAlgorithm::Sha3_224,
-            input_text: String::new(),
-            output_hash: String::new(),
+            input_text: SecureString::from(""),
+            output_hash: SecureString::from(""),
         }
     }
 
@@ -66,55 +67,65 @@ impl TextHashingUi {
 
         ui.label(RichText::new("Input Text").size(16.0));
 
-        let input_edit = TextEdit::multiline(&mut self.input_text)
-            .desired_width(300.0)
-            .desired_rows(10)
-            .text_color(Color32::WHITE)
-            .font(font);
-        let input_res = ui.add(input_edit);
+        let mut should_calculate = false;
+        self.input_text.string_mut(|input_text| {
+            let res = ui.add(
+                TextEdit::multiline(input_text)
+                    .desired_width(300.0)
+                    .desired_rows(10)
+                    .text_color(Color32::WHITE)
+                    .font(font)
+            );
+            if res.changed() {
+                should_calculate = true;
+            }
+        });
 
-        ui.label(RichText::new("Hash Output").size(16.0));
-
-        let output_edit = TextEdit::multiline(&mut self.output_hash)
-            .desired_width(300.0)
-            .desired_rows(10)
-            .text_color(Color32::WHITE)
-            .font(font_2);
-        ui.add(output_edit);
-
-        if input_res.changed() {
+        if should_calculate {
             self.calculate_hash();
         }
 
-        if self.input_text.is_empty() {
-            self.output_hash.clear();
+        ui.label(RichText::new("Hash Output").size(16.0));
+
+        self.output_hash.string_mut(|output_hash| {
+            ui.add(
+                TextEdit::multiline(output_hash)
+                    .desired_width(300.0)
+                    .desired_rows(10)
+                    .text_color(Color32::WHITE)
+                    .font(font_2)
+            );
+        });
+
+        if self.input_text.borrow().is_empty() {
+            self.output_hash.erase();
         }
     }
 
     pub fn calculate_hash(&mut self) {
-        if self.input_text.is_empty() {
+        if self.input_text.borrow().is_empty() {
             return;
         }
         if self.algorithm == HashAlgorithm::Sha3_224 {
             let mut hasher = Sha3_224::new();
-            hasher.update(self.input_text.as_bytes());
+            hasher.update(self.input_text.borrow().as_bytes());
             let result = hasher.finalize();
-            self.output_hash = format!("{:x}", result);
+            self.output_hash = format!("{:x}", result).into();
         } else if self.algorithm == HashAlgorithm::Sha3_256 {
             let mut hasher = Sha3_256::new();
-            hasher.update(self.input_text.as_bytes());
+            hasher.update(self.input_text.borrow().as_bytes());
             let result = hasher.finalize();
-            self.output_hash = format!("{:x}", result);
+            self.output_hash = format!("{:x}", result).into();
         } else if self.algorithm == HashAlgorithm::Sha3_384 {
             let mut hasher = Sha3_384::new();
-            hasher.update(self.input_text.as_bytes());
+            hasher.update(self.input_text.borrow().as_bytes());
             let result = hasher.finalize();
-            self.output_hash = format!("{:x}", result);
+            self.output_hash = format!("{:x}", result).into();
         } else {
             let mut hasher = Sha3_512::new();
-            hasher.update(self.input_text.as_bytes());
+            hasher.update(self.input_text.borrow().as_bytes());
             let result = hasher.finalize();
-            self.output_hash = format!("{:x}", result);
+            self.output_hash = format!("{:x}", result).into();
         }
     }
 

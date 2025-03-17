@@ -10,7 +10,6 @@ use eframe::{
     },
     CreationContext,
 };
-use ncrypt_me::zeroize::Zeroize;
 use egui_theme::{Theme, ThemeKind};
 use crate::gui::{ central_panel, left_panel, right_panel, GUI };
 use window::window_frame;
@@ -87,7 +86,7 @@ impl eframe::App for NCryptApp {
 
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
         self.gui.encryption_ui.credentials.erase();
-        self.gui.text_hashing_ui.input_text.zeroize();
-        self.gui.text_hashing_ui.output_hash.zeroize();
+        self.gui.text_hashing_ui.input_text.erase();
+        self.gui.text_hashing_ui.output_hash.erase();
     }
 }
