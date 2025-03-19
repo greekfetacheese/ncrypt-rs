@@ -1,7 +1,7 @@
 use eframe::egui::{ Ui, ComboBox, TextEdit, RichText, Color32, FontSelection, FontId };
 use egui_theme::Theme;
 use sha3::{ Digest, Sha3_224, Sha3_256, Sha3_384, Sha3_512 };
-use ncrypt_me::SecureString;
+use ncrypt_me::secure_types::SecureString;
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum HashAlgorithm {
