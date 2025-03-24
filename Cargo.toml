@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 
 # GUI
-eframe = "0.31.0"
+eframe = "0.31.1"
 rfd = "0.14.1"
 egui-theme = {git = "https://github.com/greekfetacheese/egui-theme.git", branch = "master"}
 
@@ -17,4 +17,5 @@ sha3 = "0.10.8"
 ncrypt-me = { git = "https://github.com/greekfetacheese/ncrypt-me.git", branch = "master" }
 
 # Misc
-num-format = "0.4.4"
+secure-types = {git = "https://github.com/greekfetacheese/secure-types.git", branch = "master", features = ["egui"]}
+lazy_static = "1.5.0"
