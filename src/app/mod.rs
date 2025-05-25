@@ -93,6 +93,7 @@ impl eframe::App for NCryptApp {
         let mut gui = SHARED_GUI.write().unwrap();
         gui.text_hashing.input_text.erase();
         gui.text_hashing.output_hash.erase();
+        gui.file_encryption.credentials.erase();
     });
    }
 }
