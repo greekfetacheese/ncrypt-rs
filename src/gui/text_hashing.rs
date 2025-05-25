@@ -44,8 +44,8 @@ impl TextHashingUi {
       Self {
          open: false,
          algorithm: HashAlgorithm::Sha3_224,
-         input_text: SecureString::from(""),
-         output_hash: SecureString::from(""),
+         input_text: SecureString::new_with_capacity(2048),
+         output_hash: SecureString::new_with_capacity(2048),
       }
    }
 

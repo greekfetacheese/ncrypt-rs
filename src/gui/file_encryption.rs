@@ -17,7 +17,7 @@ impl FileEncryptionUi {
    pub fn new() -> Self {
       Self {
          open: true,
-         credentials: Credentials::default(),
+         credentials: Credentials::new_with_capacity(1024),
          file_path: String::new(),
          dropped_file: None,
       }
