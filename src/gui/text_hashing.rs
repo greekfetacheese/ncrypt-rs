@@ -1,5 +1,6 @@
-use eframe::egui::{ComboBox, FontId, Margin, RichText, TextEdit, Ui, vec2};
+use eframe::egui::{Button, ComboBox, FontId, Margin, RichText, Ui, vec2};
 use egui_theme::{Theme, utils::widget_visuals};
+use egui_widgets::SecureTextEdit;
 use ncrypt_me::secure_types::SecureString;
 use sha3::{Digest, Sha3_224, Sha3_256, Sha3_384, Sha3_512};
 
@@ -44,8 +45,8 @@ impl TextHashingUi {
       Self {
          open: false,
          algorithm: HashAlgorithm::Sha3_224,
-         input_text: SecureString::new_with_capacity(2048),
-         output_hash: SecureString::new_with_capacity(2048),
+         input_text: SecureString::new_with_capacity(1024).unwrap(),
+         output_hash: SecureString::new_with_capacity(1024).unwrap(),
       }
    }
 
@@ -67,15 +68,14 @@ impl TextHashingUi {
          ui.label(RichText::new("Input Text").size(theme.text_sizes.large));
 
          let mut should_calculate = false;
-         self.input_text.secure_mut(|input_text| {
-            let text_edit = TextEdit::multiline(input_text)
+
+         self.input_text.mut_scope(|input_text| {
+            let text_edit = SecureTextEdit::multiline(input_text)
                .desired_width(300.0)
                .desired_rows(5)
                .margin(Margin::same(10))
                .font(FontId::proportional(theme.text_sizes.normal));
-            let mut output = text_edit.show(ui);
-            output.state.clear_undoer();
-
+            let output = text_edit.show(ui);
             if output.response.changed() {
                should_calculate = true;
             }
@@ -87,47 +87,58 @@ impl TextHashingUi {
 
          ui.label(RichText::new("Hash Output").size(theme.text_sizes.large));
 
-         self.output_hash.secure_mut(|output_hash| {
-            let text_edit = TextEdit::multiline(output_hash)
+         self.output_hash.mut_scope(|output_hash| {
+            let text_edit = SecureTextEdit::multiline(output_hash)
                .desired_width(300.0)
                .desired_rows(5)
                .margin(Margin::same(10))
                .font(FontId::proportional(theme.text_sizes.normal));
-            let mut output = text_edit.show(ui);
-            output.state.clear_undoer();
+            text_edit.show(ui);
          });
 
-         if self.input_text.borrow().is_empty() {
-            self.output_hash.erase();
+         let copy = Button::new(RichText::new("Copy").size(theme.text_sizes.normal));
+         if ui.add(copy).clicked() {
+            self.output_hash.str_scope(|text| {
+               ui.ctx().copy_text(text.to_owned());
+            })
          }
+
+         self.input_text.str_scope(|input_text| {
+            if input_text.is_empty() {
+               self.output_hash.erase();
+            }
+         });
       });
    }
 
    pub fn calculate_hash(&mut self) {
-      if self.input_text.borrow().is_empty() {
-         return;
-      }
-      if self.algorithm == HashAlgorithm::Sha3_224 {
-         let mut hasher = Sha3_224::new();
-         hasher.update(self.input_text.borrow().as_bytes());
-         let result = hasher.finalize();
-         self.output_hash = format!("{:x}", result).into();
-      } else if self.algorithm == HashAlgorithm::Sha3_256 {
-         let mut hasher = Sha3_256::new();
-         hasher.update(self.input_text.borrow().as_bytes());
-         let result = hasher.finalize();
-         self.output_hash = format!("{:x}", result).into();
-      } else if self.algorithm == HashAlgorithm::Sha3_384 {
-         let mut hasher = Sha3_384::new();
-         hasher.update(self.input_text.borrow().as_bytes());
-         let result = hasher.finalize();
-         self.output_hash = format!("{:x}", result).into();
-      } else {
-         let mut hasher = Sha3_512::new();
-         hasher.update(self.input_text.borrow().as_bytes());
-         let result = hasher.finalize();
-         self.output_hash = format!("{:x}", result).into();
-      }
+      self.input_text.str_scope(|input_text| {
+         if input_text.is_empty() {
+            return;
+         }
+
+         if self.algorithm == HashAlgorithm::Sha3_224 {
+            let mut hasher = Sha3_224::new();
+            hasher.update(input_text.as_bytes());
+            let result = hasher.finalize();
+            self.output_hash = format!("{:x}", result).into();
+         } else if self.algorithm == HashAlgorithm::Sha3_256 {
+            let mut hasher = Sha3_256::new();
+            hasher.update(input_text.as_bytes());
+            let result = hasher.finalize();
+            self.output_hash = format!("{:x}", result).into();
+         } else if self.algorithm == HashAlgorithm::Sha3_384 {
+            let mut hasher = Sha3_384::new();
+            hasher.update(input_text.as_bytes());
+            let result = hasher.finalize();
+            self.output_hash = format!("{:x}", result).into();
+         } else {
+            let mut hasher = Sha3_512::new();
+            hasher.update(input_text.as_bytes());
+            let result = hasher.finalize();
+            self.output_hash = format!("{:x}", result).into();
+         }
+      });
    }
 
    fn select_algorithm(&mut self, theme: &Theme, ui: &mut Ui) {
