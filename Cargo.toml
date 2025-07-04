@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 
 # GUI
-eframe = "0.31.1"
+eframe = {version = "0.31.1", features = ["wgpu"]}
 rfd = "0.14.1"
 egui-theme = {git = "https://github.com/greekfetacheese/egui-theme.git", branch = "master"}
 egui-widgets = { git = "https://github.com/greekfetacheese/egui-widgets.git", branch = "master", features = ["secure-text-edit"] }
