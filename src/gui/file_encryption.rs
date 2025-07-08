@@ -2,7 +2,7 @@ use super::*;
 use eframe::egui::{Button, DroppedFile, FontId, Grid, Label, Margin, RichText, Ui};
 use egui_theme::Theme;
 use egui_widgets::SecureTextEdit;
-use ncrypt_me::{Argon2Params, Credentials, decrypt_data, encrypt_data};
+use ncrypt_me::{Argon2Params, Credentials, decrypt_data, encrypt_data, secure_types::SecureBytes};
 
 const FILE_EXTENSION: &str = ".ncrypt";
 
@@ -147,7 +147,17 @@ impl FileEncryptionUi {
                gui.msg_window.open_with_loading("Encrypting...");
             }
 
-            let encrypted_data = match encrypt_data(argon_params, data, credentials) {
+            let secure_data = match SecureBytes::from_vec(data) {
+               Ok(data) => data,
+               Err(e) => {
+                  let mut gui = SHARED_GUI.write().unwrap();
+                  gui.msg_window
+                     .open_with_msg(format!("Error creating secure data: {}", e));
+                  return;
+               }
+            };
+
+            let encrypted_data = match encrypt_data(argon_params, secure_data, credentials) {
                Ok(data) => data,
                Err(e) => {
                   let mut gui = SHARED_GUI.write().unwrap();
