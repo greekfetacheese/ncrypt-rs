@@ -55,7 +55,7 @@ impl eframe::App for NCryptApp {
          bottom: 0,
       });
 
-      window_frame(ctx, frame, "nCrypt 1.2.0", |ui| {
+      window_frame(ctx, frame, "nCrypt 1.3.0", |ui| {
          if self.on_startup {
             ctx.set_style(gui.theme.style.clone());
             self.on_startup = false;
