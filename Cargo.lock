@@ -196,15 +196,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "argon2"
-version = "0.5.3"
+name = "argon2-sys"
+version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c3610892ee6e0cbce8ae2700349fcf8f98adb0dbfbee85aec3c9179d29cc072"
+checksum = "190bcd1a5417d25c2fff051cd443de3c9c348094d1cb5760d28ecf88428b76a0"
 dependencies = [
- "base64ct",
- "blake2",
- "cpufeatures",
- "password-hash",
+ "cc",
+ "libc",
 ]
 
 [[package]]
@@ -471,12 +469,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ace50bade8e6234aa140d9a2f552bbee1db4d353f69b8217bc503490fc1a9f26"
 
 [[package]]
-name = "base64ct"
-version = "1.7.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89e25b6adfb930f02d1981565a6e5d9c547ac15a96606256d3b59040e5cd4ca3"
-
-[[package]]
 name = "bincode"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -524,15 +516,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b8e56985ec62d17e9c1001dc89c88ecd7dc08e47eba5ec7c29c7b5eeecde967"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "blake2"
-version = "0.10.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46502ad458c9a52b69d4d4d32775c788b7a1b85e8bc9d482d92250fc0e3f8efe"
-dependencies = [
- "digest",
 ]
 
 [[package]]
@@ -846,7 +829,6 @@ checksum = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
 dependencies = [
  "block-buffer",
  "crypto-common",
- "subtle",
 ]
 
 [[package]]
@@ -1733,9 +1715,9 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "libc"
-version = "0.2.172"
+version = "0.2.174"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d750af042f7ef4f724306de029d18836c26c1765a54a6a3f094cbd23a7267ffa"
+checksum = "1171693293099992e19cddea4e8b849964e9846f4acee11b3948bcc337be8776"
 
 [[package]]
 name = "libloading"
@@ -1869,7 +1851,7 @@ dependencies = [
 
 [[package]]
 name = "n_crypt"
-version = "1.3.0"
+version = "1.4.0"
 dependencies = [
  "eframe",
  "egui-theme",
@@ -1905,11 +1887,12 @@ dependencies = [
 [[package]]
 name = "ncrypt-me"
 version = "0.1.0"
-source = "git+https://github.com/greekfetacheese/ncrypt-me.git?branch=master#792741fec163657edace47eb8eef58e1807ce8b2"
+source = "git+https://github.com/greekfetacheese/ncrypt-me.git?branch=master#124d31a73eb656faf9a67c296ac7f69e04266c35"
 dependencies = [
- "argon2",
+ "argon2-sys",
  "bincode",
  "chacha20poly1305",
+ "libc",
  "secure-types",
  "thiserror 2.0.12",
  "zeroize",
@@ -2379,17 +2362,6 @@ dependencies = [
  "redox_syscall 0.5.12",
  "smallvec",
  "windows-targets 0.52.6",
-]
-
-[[package]]
-name = "password-hash"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "346f04948ba92c43e8469c1ee6736c7563d71012b17d40745260fe106aac2166"
-dependencies = [
- "base64ct",
- "rand_core",
- "subtle",
 ]
 
 [[package]]

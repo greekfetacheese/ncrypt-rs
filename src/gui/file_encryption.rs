@@ -2,7 +2,7 @@ use super::*;
 use eframe::egui::{Button, DroppedFile, FontId, Grid, Label, Margin, RichText, Ui};
 use egui_theme::Theme;
 use egui_widgets::SecureTextEdit;
-use ncrypt_me::{Argon2Params, Credentials, decrypt_data, encrypt_data, secure_types::SecureBytes};
+use ncrypt_me::{Argon2, Credentials, decrypt_data, encrypt_data, secure_types::SecureBytes};
 
 const FILE_EXTENSION: &str = ".ncrypt";
 
@@ -24,7 +24,7 @@ impl FileEncryptionUi {
       }
    }
 
-   pub fn show(&mut self, theme: &Theme, argon_params: Argon2Params, ui: &mut Ui) {
+   pub fn show(&mut self, theme: &Theme, argon2: Argon2, ui: &mut Ui) {
       if !self.open {
          return;
       }
@@ -117,7 +117,7 @@ impl FileEncryptionUi {
             let res = Grid::new("encrypt_decrypt_grid")
                .spacing(vec2(10.0, 0.0))
                .show(ui, |ui| {
-                  self.encrypt(theme, argon_params, ui);
+                  self.encrypt(theme, argon2, ui);
                   self.decrypt(theme, ui);
                });
             res.response
@@ -125,7 +125,7 @@ impl FileEncryptionUi {
       });
    }
 
-   fn encrypt(&mut self, theme: &Theme, argon_params: Argon2Params, ui: &mut Ui) {
+   fn encrypt(&mut self, theme: &Theme, argon2: Argon2, ui: &mut Ui) {
       let text = RichText::new("Encrypt").size(theme.text_sizes.normal);
 
       if ui.add(Button::new(text)).clicked() {
@@ -157,7 +157,7 @@ impl FileEncryptionUi {
                }
             };
 
-            let encrypted_data = match encrypt_data(argon_params, secure_data, credentials) {
+            let encrypted_data = match encrypt_data(argon2, secure_data, credentials) {
                Ok(data) => data,
                Err(e) => {
                   let mut gui = SHARED_GUI.write().unwrap();

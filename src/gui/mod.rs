@@ -1,7 +1,7 @@
 use eframe::egui::{Align2, Button, Color32, RichText, Slider, Spinner, Ui, Window, vec2};
 use egui_theme::{Theme, ThemeKind};
 use lazy_static::lazy_static;
-use ncrypt_me::Argon2Params;
+use ncrypt_me::Argon2;
 use std::sync::{Arc, RwLock};
 
 lazy_static! {
@@ -84,7 +84,7 @@ pub struct GUI {
    pub theme: Theme,
    pub file_encryption: FileEncryptionUi,
    pub text_hashing: TextHashingUi,
-   pub argon_params: Argon2Params,
+   pub argon2: Argon2,
    pub msg_window: MessageWindow,
 }
 
@@ -97,13 +97,13 @@ impl GUI {
          size: (250.0, 150.0),
       };
 
-      let argon_params = Argon2Params::balanced();
+      let argon2 = Argon2::balanced();
 
       Self {
          theme,
          file_encryption: FileEncryptionUi::new(),
          text_hashing: TextHashingUi::new(),
-         argon_params,
+         argon2,
          msg_window,
       }
    }
@@ -145,19 +145,19 @@ impl GUI {
             .on_hover_text(M_COST_TIP);
 
          ui.add(
-            Slider::new(&mut self.argon_params.m_cost, 64_000..=10000000) // 64MB - 10GB
+            Slider::new(&mut self.argon2.m_cost, 64_000..=10000000) // 64MB - 10GB
                .custom_formatter(|v, _ctx| format!("{:.0} MB", v / 1000.0)),
          );
 
          ui.label(RichText::new("Iterations:").size(self.theme.text_sizes.normal))
             .on_hover_text(T_COST_TIP);
 
-         ui.add(Slider::new(&mut self.argon_params.t_cost, 5..=200));
+         ui.add(Slider::new(&mut self.argon2.t_cost, 5..=1024));
 
          ui.label(RichText::new("Parallelism:").size(self.theme.text_sizes.normal))
             .on_hover_text(P_COST_TIP);
 
-         ui.add(Slider::new(&mut self.argon_params.p_cost, 1..=64));
+         ui.add(Slider::new(&mut self.argon2.p_cost, 1..=256));
       });
    }
 
@@ -165,7 +165,7 @@ impl GUI {
       self.msg_window.show(&self.theme, ui);
       self
          .file_encryption
-         .show(&self.theme, self.argon_params.clone(), ui);
+         .show(&self.theme, self.argon2.clone(), ui);
       self.text_hashing.show(&self.theme, ui);
    }
 }
