@@ -1,21 +1,22 @@
 [package]
 name = "n_crypt"
-version = "1.4.0"
-edition = "2021"
+version = "1.5.0"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 
 # GUI
-eframe = {version = "0.31.1", features = ["wgpu"]}
+eframe = {version = "=0.32.0", features = ["wgpu"]}
+wgpu = "25"
 rfd = "0.14.1"
 egui-theme = {git = "https://github.com/greekfetacheese/egui-theme.git", branch = "master"}
 egui-widgets = { git = "https://github.com/greekfetacheese/egui-widgets.git", branch = "master", features = ["secure-text-edit"] }
 
 # Crypto
 sha3 = "0.10.8"
-ncrypt-me = { git = "https://github.com/greekfetacheese/ncrypt-me.git", branch = "master" }
+ncrypt-me = "0.1"
 
 # Misc
 lazy_static = "1.5.0"

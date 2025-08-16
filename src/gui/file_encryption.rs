@@ -135,24 +135,25 @@ impl FileEncryptionUi {
             let data = match std::fs::read(&file_path) {
                Ok(data) => data,
                Err(e) => {
-                  let mut gui = SHARED_GUI.write().unwrap();
-                  gui.msg_window
-                     .open_with_msg(format!("Error reading file: {}", e));
+                  SHARED_GUI.write(|gui| {
+                     gui.msg_window
+                        .open_with_msg(format!("Error reading file: {}", e));
+                  });
                   return;
                }
             };
 
-            {
-               let mut gui = SHARED_GUI.write().unwrap();
+            SHARED_GUI.write(|gui| {
                gui.msg_window.open_with_loading("Encrypting...");
-            }
+            });
 
             let secure_data = match SecureBytes::from_vec(data) {
                Ok(data) => data,
                Err(e) => {
-                  let mut gui = SHARED_GUI.write().unwrap();
-                  gui.msg_window
-                     .open_with_msg(format!("Error creating secure data: {}", e));
+                  SHARED_GUI.write(|gui| {
+                     gui.msg_window
+                        .open_with_msg(format!("Error creating secure data: {}", e));
+                  });
                   return;
                }
             };
@@ -160,9 +161,10 @@ impl FileEncryptionUi {
             let encrypted_data = match encrypt_data(argon2, secure_data, credentials) {
                Ok(data) => data,
                Err(e) => {
-                  let mut gui = SHARED_GUI.write().unwrap();
-                  gui.msg_window
-                     .open_with_msg(format!("Error encrypting file: {}", e));
+                  SHARED_GUI.write(|gui| {
+                     gui.msg_window
+                        .open_with_msg(format!("Error encrypting file: {}", e));
+                  });
                   return;
                }
             };
@@ -171,14 +173,16 @@ impl FileEncryptionUi {
 
             match std::fs::write(&new_file_path, encrypted_data) {
                Ok(_) => {
-                  let mut gui = SHARED_GUI.write().unwrap();
-                  gui.msg_window
-                     .open_with_msg(format!("File encrypted successfully to {}", new_file_path));
+                  SHARED_GUI.write(|gui| {
+                     gui.msg_window
+                        .open_with_msg(format!("File encrypted successfully to {}", new_file_path));
+                  });
                }
                Err(e) => {
-                  let mut gui = SHARED_GUI.write().unwrap();
-                  gui.msg_window
-                     .open_with_msg(format!("Error writing file: {}", e));
+                  SHARED_GUI.write(|gui| {
+                     gui.msg_window
+                        .open_with_msg(format!("Error writing file: {}", e));
+                  });
                }
             }
          });
@@ -195,24 +199,25 @@ impl FileEncryptionUi {
             let data = match std::fs::read(&file_path) {
                Ok(data) => data,
                Err(e) => {
-                  let mut gui = SHARED_GUI.write().unwrap();
-                  gui.msg_window
-                     .open_with_msg(format!("Error reading file: {}", e));
+                  SHARED_GUI.write(|gui| {
+                     gui.msg_window
+                        .open_with_msg(format!("Error reading file: {}", e));
+                  });
                   return;
                }
             };
 
-            {
-               let mut gui = SHARED_GUI.write().unwrap();
+            SHARED_GUI.write(|gui| {
                gui.msg_window.open_with_loading("Decrypting...");
-            }
+            });
 
             let decrypted_data = match decrypt_data(data, credentials) {
                Ok(data) => data,
                Err(e) => {
-                  let mut gui = SHARED_GUI.write().unwrap();
-                  gui.msg_window
-                     .open_with_msg(format!("Error decrypting file: {}", e));
+                  SHARED_GUI.write(|gui| {
+                     gui.msg_window
+                        .open_with_msg(format!("Error decrypting file: {}", e));
+                  });
                   return;
                }
             };
@@ -222,14 +227,16 @@ impl FileEncryptionUi {
 
             decrypted_data.slice_scope(|data| match std::fs::write(&new_file_path, data) {
                Ok(_) => {
-                  let mut gui = SHARED_GUI.write().unwrap();
-                  gui.msg_window
-                     .open_with_msg(format!("File decrypted successfully to {}", new_file_path));
+                  SHARED_GUI.write(|gui| {
+                     gui.msg_window
+                        .open_with_msg(format!("File decrypted successfully to {}", new_file_path));
+                  });
                }
                Err(e) => {
-                  let mut gui = SHARED_GUI.write().unwrap();
-                  gui.msg_window
-                     .open_with_msg(format!("Error writing file: {}", e));
+                  SHARED_GUI.write(|gui| {
+                     gui.msg_window
+                        .open_with_msg(format!("Error writing file: {}", e));
+                  });
                }
             });
          });

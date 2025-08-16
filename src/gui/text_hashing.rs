@@ -1,5 +1,5 @@
 use eframe::egui::{Button, ComboBox, FontId, Margin, RichText, Ui, vec2};
-use egui_theme::{Theme, utils::widget_visuals};
+use egui_theme::Theme;
 use egui_widgets::SecureTextEdit;
 use ncrypt_me::secure_types::SecureString;
 use sha3::{Digest, Sha3_224, Sha3_256, Sha3_384, Sha3_512};
@@ -60,8 +60,6 @@ impl TextHashingUi {
          ui.set_height(ui.available_height() * 0.8);
          ui.spacing_mut().item_spacing.y = 25.0;
          ui.spacing_mut().button_padding = vec2(10.0, 10.0);
-         let visuals = theme.get_widget_visuals(theme.colors.bg_color);
-         widget_visuals(ui, visuals);
 
          self.select_algorithm(theme, ui);
 

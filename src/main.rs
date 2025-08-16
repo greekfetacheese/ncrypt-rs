@@ -7,14 +7,14 @@ use app::NCryptApp;
 use eframe::{
    egui,
    egui_wgpu::{WgpuConfiguration, WgpuSetup, WgpuSetupCreateNew},
-   wgpu::{self, Backends, InstanceDescriptor, MemoryHints, PowerPreference, PresentMode},
+   wgpu::{self, Backends, InstanceDescriptor, MemoryHints, PowerPreference},
 };
 use std::sync::Arc;
 
 fn main() -> Result<(), eframe::Error> {
    let wgpu_setup = WgpuSetup::CreateNew(WgpuSetupCreateNew {
       instance_descriptor: InstanceDescriptor {
-         backends: Backends::VULKAN | Backends::DX12 | Backends::GL,
+         backends: Backends::PRIMARY | Backends::GL,
          ..Default::default()
       },
       power_preference: PowerPreference::HighPerformance,
@@ -33,14 +33,13 @@ fn main() -> Result<(), eframe::Error> {
                ..base_limits
             },
             memory_hints: MemoryHints::MemoryUsage,
+            trace: wgpu::Trace::Off,
          }
       }),
       ..Default::default()
    });
 
    let wgpu_config = WgpuConfiguration {
-      present_mode: PresentMode::Fifo,
-      desired_maximum_frame_latency: None,
       wgpu_setup,
       ..Default::default()
    };

@@ -5,7 +5,7 @@ use ncrypt_me::Argon2;
 use std::sync::{Arc, RwLock};
 
 lazy_static! {
-   pub static ref SHARED_GUI: Arc<RwLock<GUI>> = Arc::new(RwLock::new(GUI::new(Theme::new(ThemeKind::Mocha))));
+   pub static ref SHARED_GUI: SharedGUI = SharedGUI::default();
 }
 
 const M_COST_TIP: &str =
@@ -31,6 +31,16 @@ pub struct MessageWindow {
 }
 
 impl MessageWindow {
+
+   pub fn new() -> Self {
+      Self {
+         open: false,
+         message: String::new(),
+         loading: false,
+         size: (250.0, 150.0),
+      }
+   }
+
    pub fn open_with_msg(&mut self, msg: impl Into<String>) {
       self.open = true;
       self.loading = false;
@@ -80,6 +90,25 @@ impl MessageWindow {
    }
 }
 
+#[derive(Clone)]
+pub struct SharedGUI(Arc<RwLock<GUI>>);
+
+impl SharedGUI {
+   pub fn read<R>(&self, reader: impl FnOnce(&GUI) -> R) -> R {
+      reader(&self.0.read().unwrap())
+   }
+
+   pub fn write<R>(&self, writer: impl FnOnce(&mut GUI) -> R) -> R {
+      writer(&mut self.0.write().unwrap())
+   }
+}
+
+impl Default for SharedGUI {
+   fn default() -> Self {
+      Self(Arc::new(RwLock::new(GUI::default())))
+   }
+}
+
 pub struct GUI {
    pub theme: Theme,
    pub file_encryption: FileEncryptionUi,
@@ -88,15 +117,9 @@ pub struct GUI {
    pub msg_window: MessageWindow,
 }
 
-impl GUI {
-   pub fn new(theme: Theme) -> Self {
-      let msg_window = MessageWindow {
-         open: false,
-         message: String::new(),
-         loading: false,
-         size: (250.0, 150.0),
-      };
-
+impl Default for GUI {
+   fn default() -> Self {
+      let theme = Theme::new(ThemeKind::Nord);
       let argon2 = Argon2::balanced();
 
       Self {
@@ -104,10 +127,12 @@ impl GUI {
          file_encryption: FileEncryptionUi::new(),
          text_hashing: TextHashingUi::new(),
          argon2,
-         msg_window,
+         msg_window: MessageWindow::new(),
       }
    }
+}
 
+impl GUI {
    pub fn show_left_panel(&mut self, ui: &mut Ui) {
       ui.vertical(|ui| {
          ui.spacing_mut().item_spacing.y = 20.0;
