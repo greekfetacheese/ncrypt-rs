@@ -1,8 +1,8 @@
 use eframe::egui::{Button, ComboBox, FontId, Margin, RichText, Ui, vec2};
-use egui_theme::Theme;
-use egui_widgets::SecureTextEdit;
 use ncrypt_me::secure_types::SecureString;
 use sha3::{Digest, Sha3_224, Sha3_256, Sha3_384, Sha3_512};
+use zeus_theme::Theme;
+use zeus_widgets::SecureTextEdit;
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum HashAlgorithm {
@@ -67,7 +67,7 @@ impl TextHashingUi {
 
          let mut should_calculate = false;
 
-         self.input_text.mut_scope(|input_text| {
+         self.input_text.unlock_mut(|input_text| {
             let text_edit = SecureTextEdit::multiline(input_text)
                .desired_width(300.0)
                .desired_rows(5)
@@ -85,7 +85,7 @@ impl TextHashingUi {
 
          ui.label(RichText::new("Hash Output").size(theme.text_sizes.large));
 
-         self.output_hash.mut_scope(|output_hash| {
+         self.output_hash.unlock_mut(|output_hash| {
             let text_edit = SecureTextEdit::multiline(output_hash)
                .desired_width(300.0)
                .desired_rows(5)
@@ -96,12 +96,12 @@ impl TextHashingUi {
 
          let copy = Button::new(RichText::new("Copy").size(theme.text_sizes.normal));
          if ui.add(copy).clicked() {
-            self.output_hash.str_scope(|text| {
+            self.output_hash.unlock_str(|text| {
                ui.ctx().copy_text(text.to_owned());
             })
          }
 
-         self.input_text.str_scope(|input_text| {
+         self.input_text.unlock_str(|input_text| {
             if input_text.is_empty() {
                self.output_hash.erase();
             }
@@ -110,7 +110,7 @@ impl TextHashingUi {
    }
 
    pub fn calculate_hash(&mut self) {
-      self.input_text.str_scope(|input_text| {
+      self.input_text.unlock_str(|input_text| {
          if input_text.is_empty() {
             return;
          }

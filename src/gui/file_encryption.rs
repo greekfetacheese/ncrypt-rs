@@ -1,8 +1,8 @@
 use super::*;
 use eframe::egui::{Button, DroppedFile, FontId, Grid, Label, Margin, RichText, Ui};
-use egui_theme::Theme;
-use egui_widgets::SecureTextEdit;
 use ncrypt_me::{Argon2, Credentials, decrypt_data, encrypt_data, secure_types::SecureBytes};
+use zeus_theme::Theme;
+use zeus_widgets::SecureTextEdit;
 
 const FILE_EXTENSION: &str = ".ncrypt";
 
@@ -85,7 +85,7 @@ impl FileEncryptionUi {
          ui.label(RichText::new("Enter Your Credentials").size(theme.text_sizes.normal));
 
          ui.label(RichText::new("Username").size(theme.text_sizes.normal));
-         self.credentials.username.mut_scope(|username| {
+         self.credentials.username.unlock_mut(|username| {
             let text_edit = SecureTextEdit::singleline(username)
                .margin(Margin::same(10))
                .min_size((200.0, 25.0).into())
@@ -94,7 +94,7 @@ impl FileEncryptionUi {
          });
 
          ui.label(RichText::new("Password").size(theme.text_sizes.normal));
-         self.credentials.password.mut_scope(|passwd| {
+         self.credentials.password.unlock_mut(|passwd| {
             let text_edit = SecureTextEdit::singleline(passwd)
                .margin(Margin::same(10))
                .min_size((200.0, 25.0).into())
@@ -104,7 +104,7 @@ impl FileEncryptionUi {
          });
 
          ui.label(RichText::new("Confirm Password").size(theme.text_sizes.normal));
-         self.credentials.confirm_password.mut_scope(|passwd| {
+         self.credentials.confirm_password.unlock_mut(|passwd| {
             let text_edit = SecureTextEdit::singleline(passwd)
                .margin(Margin::same(10))
                .min_size((200.0, 25.0).into())
@@ -225,7 +225,7 @@ impl FileEncryptionUi {
             // remove the extension
             let new_file_path = file_path.replace(FILE_EXTENSION, "");
 
-            decrypted_data.slice_scope(|data| match std::fs::write(&new_file_path, data) {
+            decrypted_data.unlock_slice(|data| match std::fs::write(&new_file_path, data) {
                Ok(_) => {
                   SHARED_GUI.write(|gui| {
                      gui.msg_window

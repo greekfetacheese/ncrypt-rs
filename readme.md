@@ -3,7 +3,7 @@
 ### A simple GUI App to safely encrypt any file
 
 
-![Screenshot](ncrypt-app.png)
+![Screenshot](ncrypt.png)
 
 
 ## Build From Source

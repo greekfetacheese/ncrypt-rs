@@ -1,8 +1,8 @@
 use eframe::egui::{Align2, Button, Color32, RichText, Slider, Spinner, Ui, Window, vec2};
-use egui_theme::{Theme, ThemeKind};
 use lazy_static::lazy_static;
 use ncrypt_me::Argon2;
 use std::sync::{Arc, RwLock};
+use zeus_theme::{Theme, ThemeKind};
 
 lazy_static! {
    pub static ref SHARED_GUI: SharedGUI = SharedGUI::default();
@@ -20,6 +20,7 @@ const P_COST_TIP: &str = "You should probably leave this to 1.";
 use file_encryption::FileEncryptionUi;
 use text_hashing::TextHashingUi;
 
+pub mod app;
 pub mod file_encryption;
 pub mod text_hashing;
 
@@ -31,7 +32,6 @@ pub struct MessageWindow {
 }
 
 impl MessageWindow {
-
    pub fn new() -> Self {
       Self {
          open: false,
@@ -119,7 +119,7 @@ pub struct GUI {
 
 impl Default for GUI {
    fn default() -> Self {
-      let theme = Theme::new(ThemeKind::Nord);
+      let theme = Theme::new(ThemeKind::Dark);
       let argon2 = Argon2::balanced();
 
       Self {
