@@ -1,8 +1,9 @@
-use eframe::egui::{Button, ComboBox, FontId, Margin, RichText, Ui, vec2};
+use eframe::egui::{FontId, Margin, RichText, Ui, vec2};
 use ncrypt_me::secure_types::SecureString;
 use sha3::{Digest, Sha3_224, Sha3_256, Sha3_384, Sha3_512};
 use zeus_theme::Theme;
 use zeus_widgets::SecureTextEdit;
+use zeus_widgets::{Button, ComboBox, Label};
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum HashAlgorithm {
@@ -61,6 +62,7 @@ impl TextHashingUi {
          ui.spacing_mut().item_spacing.y = 25.0;
          ui.spacing_mut().button_padding = vec2(10.0, 10.0);
 
+         ui.add_space(10.0);
          self.select_algorithm(theme, ui);
 
          ui.label(RichText::new("Input Text").size(theme.text_sizes.large));
@@ -94,8 +96,11 @@ impl TextHashingUi {
             text_edit.show(ui);
          });
 
-         let copy = Button::new(RichText::new("Copy").size(theme.text_sizes.normal));
-         if ui.add(copy).clicked() {
+         let visuals = theme.button_visuals();
+         let text = RichText::new("Copy").size(theme.text_sizes.normal);
+         let button = Button::new(text).visuals(visuals);
+
+         if ui.add(button).clicked() {
             self.output_hash.unlock_str(|text| {
                ui.ctx().copy_text(text.to_owned());
             })
@@ -140,9 +145,16 @@ impl TextHashingUi {
    }
 
    fn select_algorithm(&mut self, theme: &Theme, ui: &mut Ui) {
-      ComboBox::from_label("")
-         .selected_text(RichText::new(self.algorithm.to_string()).size(theme.text_sizes.normal))
+      let label_text = RichText::new(self.algorithm.to_string()).size(theme.text_sizes.normal);
+      let label = Label::new(label_text, None);
+      let visuals = theme.combo_box_visuals();
+
+      ComboBox::new("select_algo", label)
+         .visuals(visuals)
+         .width(150.0)
          .show_ui(ui, |ui| {
+            ui.spacing_mut().button_padding = vec2(5.0, 5.0);
+
             let mut algorithms = self.algorithm.to_vec();
 
             for selected_algorithm in algorithms.iter_mut() {

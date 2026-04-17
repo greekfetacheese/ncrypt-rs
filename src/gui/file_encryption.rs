@@ -1,8 +1,9 @@
 use super::*;
-use eframe::egui::{Button, DroppedFile, FontId, Grid, Label, Margin, RichText, Ui};
+use eframe::egui::{DroppedFile, Grid, Label, RichText, Ui};
 use ncrypt_me::{Argon2, Credentials, decrypt_data, encrypt_data, secure_types::SecureBytes};
 use zeus_theme::Theme;
-use zeus_widgets::SecureTextEdit;
+use zeus_ui_components::SecureInputField;
+use zeus_widgets::Button;
 
 const FILE_EXTENSION: &str = ".ncrypt";
 
@@ -10,6 +11,9 @@ const FILE_EXTENSION: &str = ".ncrypt";
 pub struct FileEncryptionUi {
    pub open: bool,
    pub credentials: Credentials,
+   pub username_field: SecureInputField,
+   pub password_field: SecureInputField,
+   pub confirm_password_field: SecureInputField,
    pub file_path: String,
    pub dropped_file: Option<DroppedFile>,
 }
@@ -19,6 +23,9 @@ impl FileEncryptionUi {
       Self {
          open: true,
          credentials: Credentials::new_with_capacity(1024).unwrap(),
+         username_field: SecureInputField::new("Username", false, true),
+         password_field: SecureInputField::new("Password", true, true),
+         confirm_password_field: SecureInputField::new("Confirm Password", true, true),
          file_path: String::new(),
          dropped_file: None,
       }
@@ -33,7 +40,7 @@ impl FileEncryptionUi {
          ui.set_width(ui.available_width());
          ui.set_height(ui.available_height());
          ui.spacing_mut().item_spacing.y = 15.0;
-         ui.spacing_mut().button_padding = vec2(10.0, 10.0);
+         ui.spacing_mut().button_padding = vec2(5.0, 5.0);
 
          let text =
             RichText::new("You can drag and drop your file here or select a file").size(theme.text_sizes.normal);
@@ -50,12 +57,9 @@ impl FileEncryptionUi {
             }
          });
 
-         if ui
-            .add(Button::new(
-               RichText::new("Choose a File").size(theme.text_sizes.normal),
-            ))
-            .clicked()
-         {
+         let button =
+            Button::new(RichText::new("Choose a File").size(theme.text_sizes.normal)).visuals(theme.button_visuals());
+         if ui.add(button).clicked() {
             if let Some(path) = rfd::FileDialog::new().pick_file() {
                self.file_path = path.to_str().unwrap().to_string();
             }
@@ -84,36 +88,40 @@ impl FileEncryptionUi {
          // Credentials
          ui.label(RichText::new("Enter Your Credentials").size(theme.text_sizes.normal));
 
-         ui.label(RichText::new("Username").size(theme.text_sizes.normal));
-         self.credentials.username.unlock_mut(|username| {
-            let text_edit = SecureTextEdit::singleline(username)
-               .margin(Margin::same(10))
-               .min_size((200.0, 25.0).into())
-               .font(FontId::proportional(theme.text_sizes.normal));
-            text_edit.show(ui);
-         });
+         let user_output = self.username_field.show(theme, ui);
+         let passwd_output = self.password_field.show(theme, ui);
+         let confirm_passwd_output = self.confirm_password_field.show(theme, ui);
 
-         ui.label(RichText::new("Password").size(theme.text_sizes.normal));
-         self.credentials.password.unlock_mut(|passwd| {
-            let text_edit = SecureTextEdit::singleline(passwd)
-               .margin(Margin::same(10))
-               .min_size((200.0, 25.0).into())
-               .font(FontId::proportional(theme.text_sizes.normal))
-               .password(true);
-            text_edit.show(ui);
-         });
+         match user_output {
+            Some(output) => {
+               if output.response.changed() {
+                  self.credentials.username = self.username_field.text();
+               }
+            }
+            None => {}
+         }
 
-         ui.label(RichText::new("Confirm Password").size(theme.text_sizes.normal));
-         self.credentials.confirm_password.unlock_mut(|passwd| {
-            let text_edit = SecureTextEdit::singleline(passwd)
-               .margin(Margin::same(10))
-               .min_size((200.0, 25.0).into())
-               .font(FontId::proportional(theme.text_sizes.normal))
-               .password(true);
-            text_edit.show(ui);
-         });
+         match passwd_output {
+            Some(output) => {
+               if output.response.changed() {
+                  self.credentials.password = self.password_field.text();
+               }
+            }
+            None => {}
+         }
+
+         match confirm_passwd_output {
+            Some(output) => {
+               if output.response.changed() {
+                  self.credentials.confirm_password = self.confirm_password_field.text();
+               }
+            }
+            None => {}
+         };
 
          ui.add_sized(vec2(150.0, 30.0), |ui: &mut Ui| {
+            ui.spacing_mut().button_padding = vec2(10.0, 10.0);
+
             let res = Grid::new("encrypt_decrypt_grid")
                .spacing(vec2(10.0, 0.0))
                .show(ui, |ui| {
@@ -127,8 +135,10 @@ impl FileEncryptionUi {
 
    fn encrypt(&mut self, theme: &Theme, argon2: Argon2, ui: &mut Ui) {
       let text = RichText::new("Encrypt").size(theme.text_sizes.normal);
+      let visuals = theme.button_visuals();
+      let button = Button::new(text).visuals(visuals);
 
-      if ui.add(Button::new(text)).clicked() {
+      if ui.add(button).clicked() {
          let file_path = self.file_path.clone();
          let credentials = self.credentials.clone();
          std::thread::spawn(move || {
@@ -191,7 +201,10 @@ impl FileEncryptionUi {
 
    fn decrypt(&mut self, theme: &Theme, ui: &mut Ui) {
       let text = RichText::new("Decrypt").size(theme.text_sizes.normal);
-      if ui.add(Button::new(text)).clicked() {
+      let visuals = theme.button_visuals();
+      let button = Button::new(text).visuals(visuals);
+
+      if ui.add(button).clicked() {
          let file_path = self.file_path.clone();
          let credentials = self.credentials.clone();
 

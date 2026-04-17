@@ -1,8 +1,9 @@
-use eframe::egui::{Align2, Button, Color32, RichText, Slider, Spinner, Ui, Window, vec2};
+use eframe::egui::{Align2, RichText, Slider, Spinner, Ui, Window, vec2};
 use lazy_static::lazy_static;
 use ncrypt_me::Argon2;
 use std::sync::{Arc, RwLock};
 use zeus_theme::{Theme, ThemeKind};
+use zeus_widgets::Button;
 
 lazy_static! {
    pub static ref SHARED_GUI: SharedGUI = SharedGUI::default();
@@ -71,17 +72,14 @@ impl MessageWindow {
                ui.spacing_mut().button_padding = vec2(10.0, 10.0);
 
                if self.loading {
-                  ui.add(Spinner::new().size(20.0).color(Color32::WHITE));
+                  ui.add(Spinner::new().size(20.0).color(theme.colors.text));
                   ui.add_space(10.0);
                   ui.label(RichText::new(self.message.clone()).size(theme.text_sizes.normal));
                } else {
                   ui.label(RichText::new(self.message.clone()).size(theme.text_sizes.normal));
-                  if ui
-                     .add(Button::new(
-                        RichText::new("Ok").size(theme.text_sizes.normal),
-                     ))
-                     .clicked()
-                  {
+                  let visuals = theme.button_visuals();
+                  let button = Button::new(RichText::new("Ok").size(theme.text_sizes.normal)).visuals(visuals);
+                  if ui.add(button).clicked() {
                      self.open = false;
                   }
                }
@@ -137,19 +135,22 @@ impl GUI {
       ui.vertical(|ui| {
          ui.spacing_mut().item_spacing.y = 20.0;
          ui.spacing_mut().button_padding = vec2(10.0, 10.0);
+         let visuals = self.theme.button_visuals();
 
          let text = RichText::new("File Encryption").size(self.theme.text_sizes.normal);
          let text2 = RichText::new("Text Hashing").size(self.theme.text_sizes.normal);
 
          ui.horizontal(|ui| {
-            if ui.add(Button::new(text)).clicked() {
+            let button = Button::new(text).visuals(visuals);
+            if ui.add(button).clicked() {
                self.file_encryption.open = true;
                self.text_hashing.open = false;
             }
          });
 
          ui.horizontal(|ui| {
-            if ui.add(Button::new(text2)).clicked() {
+            let button = Button::new(text2).visuals(visuals);
+            if ui.add(button).clicked() {
                self.file_encryption.open = false;
                self.text_hashing.open = true;
             }

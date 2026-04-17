@@ -5,7 +5,7 @@ pub mod gui;
 use eframe::{
    egui,
    egui_wgpu::{WgpuConfiguration, WgpuSetup, WgpuSetupCreateNew},
-   wgpu::{self, MemoryHints, Trace},
+   wgpu::{self, InstanceDescriptor, MemoryHints, Trace},
 };
 use gui::app::NCryptApp;
 use std::sync::Arc;
@@ -17,7 +17,10 @@ fn main() -> Result<(), eframe::Error> {
          trace: Trace::Off,
          ..Default::default()
       }),
-      ..Default::default()
+      instance_descriptor: InstanceDescriptor::new_without_display_handle(),
+      display_handle: None,
+      native_adapter_selector: None,
+      power_preference: wgpu::PowerPreference::LowPower,
    });
 
    let wgpu_config = WgpuConfiguration {
@@ -37,8 +40,14 @@ fn main() -> Result<(), eframe::Error> {
    };
 
    eframe::run_native(
-      "nCrypt",
+      "nCrypt 2.0.0",
       options,
-      Box::new(|cc| Ok(Box::new(NCryptApp::new(cc)))),
+      Box::new(|cc| {
+         egui_extras::install_image_loaders(&cc.egui_ctx);
+
+         let app = NCryptApp::new(cc);
+
+         Ok(Box::new(app))
+      }),
    )
 }
