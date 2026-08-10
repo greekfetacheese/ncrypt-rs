@@ -40,7 +40,7 @@ fn main() -> Result<(), eframe::Error> {
    };
 
    eframe::run_native(
-      "nCrypt 2.0.0",
+      "nCrypt 3.0.0",
       options,
       Box::new(|cc| {
          egui_extras::install_image_loaders(&cc.egui_ctx);
