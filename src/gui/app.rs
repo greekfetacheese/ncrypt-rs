@@ -3,7 +3,6 @@ use eframe::{
    CreationContext,
    egui::{CentralPanel, Context, Frame, Panel, Rgba, Ui, Visuals},
 };
-use zeus_theme::{Theme, ThemeKind};
 
 /// The main application struct
 pub struct NCryptApp {
@@ -12,7 +11,7 @@ pub struct NCryptApp {
 
 impl NCryptApp {
    pub fn new(cc: &CreationContext) -> Self {
-      let theme = Theme::new(ThemeKind::Dark);
+      let theme = SHARED_GUI.read(|gui| gui.theme.clone());
 
       cc.egui_ctx.set_global_style(theme.style.clone());
 
@@ -25,7 +24,7 @@ impl NCryptApp {
 
    fn on_shutdown(&mut self, ctx: &Context, gui: &mut GUI) {
       if ctx.input(|i| i.viewport().close_requested()) {
-         gui.file_encryption.credentials.erase();
+         gui.file_encryption.credentials_form.erase();
          gui.text_hashing.input_text.erase();
          gui.text_hashing.output_hash.erase();
       }
@@ -59,7 +58,7 @@ impl eframe::App for NCryptApp {
             .resizable(false)
             .show_separator_line(false)
             .frame(top_frame)
-            .show_inside(ui, |_ui| {});
+            .show(ui, |_ui| {});
 
          // UI that belongs to the left panel
          Panel::left("left_panel")
@@ -67,7 +66,7 @@ impl eframe::App for NCryptApp {
             .resizable(false)
             .frame(top_frame)
             .show_separator_line(false)
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                gui.show_left_panel(ui);
             });
 
@@ -77,12 +76,12 @@ impl eframe::App for NCryptApp {
             .resizable(false)
             .show_separator_line(false)
             .frame(panel_frame)
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                gui.show_right_panel(ui);
             });
 
          // UI that belongs to the central panel
-         CentralPanel::default().frame(panel_frame).show_inside(ui, |ui| {
+         CentralPanel::default().frame(panel_frame).show(ui, |ui| {
             gui.show_central_panel(ui);
          });
       });

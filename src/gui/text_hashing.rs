@@ -68,9 +68,11 @@ impl TextHashingUi {
          ui.label(RichText::new("Input Text").size(theme.text_sizes.large));
 
          let mut should_calculate = false;
+         let visuals = theme.text_edit_visuals();
 
-         self.input_text.unlock_mut(|input_text| {
+         self.input_text.secure_mut(|input_text| {
             let text_edit = SecureTextEdit::multiline(input_text)
+               .visuals(visuals)
                .desired_width(300.0)
                .desired_rows(5)
                .margin(Margin::same(10))
@@ -87,8 +89,9 @@ impl TextHashingUi {
 
          ui.label(RichText::new("Hash Output").size(theme.text_sizes.large));
 
-         self.output_hash.unlock_mut(|output_hash| {
+         self.output_hash.secure_mut(|output_hash| {
             let text_edit = SecureTextEdit::multiline(output_hash)
+               .visuals(visuals)
                .desired_width(300.0)
                .desired_rows(5)
                .margin(Margin::same(10))

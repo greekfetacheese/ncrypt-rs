@@ -8,17 +8,17 @@ edition = "2024"
 [dependencies]
 
 # GUI
-eframe = {version = "=0.34.1", features = ["wgpu"]}
-egui_extras = { version = "=0.34.1", features = ["image"] }
+eframe = {version = "0.36", features = ["wgpu"]}
+egui_extras = { version = "0.36", features = ["image"] }
 
-rfd = "0.14.1"
+rfd = "0.17"
 zeus-theme = "0.4"
 zeus-widgets = "0.4"
-zeus-ui-components = {version = "0.4.0", features = ["secure-types", "qr-scanner"]}
+zeus-ui-components = {version = "0.4", features = ["secure-types", "qr-scanner"]}
 
 # Crypto
 sha3 = "0.10.8"
-ncrypt-me = "0.2"
+ncrypt-me = "0.3"
 
 # Misc
 lazy_static = "1.5.0"

@@ -1,9 +1,9 @@
-use eframe::egui::{Align2, RichText, Slider, Spinner, Ui, Window, vec2};
+use eframe::egui::{Order, RichText, Slider, Spinner, Ui, vec2};
 use lazy_static::lazy_static;
 use ncrypt_me::Argon2;
 use std::sync::{Arc, RwLock};
 use zeus_theme::{Theme, ThemeKind};
-use zeus_widgets::Button;
+use zeus_widgets::{Button, Modal};
 
 lazy_static! {
    pub static ref SHARED_GUI: SharedGUI = SharedGUI::default();
@@ -59,23 +59,26 @@ impl MessageWindow {
          return;
       }
 
-      Window::new("msg_window")
-         .title_bar(false)
-         .anchor(Align2::CENTER_CENTER, vec2(0.0, 0.0))
+      let mut open = self.open;
+
+      Modal::new("msg_window", &mut open)
+         .backdrop_order(Order::Tooltip)
+         .content_order(Order::Debug)
+         .close_on_backdrop(false)
+         .close_on_escape(false)
          .show(ui.ctx(), |ui| {
             ui.set_width(self.size.0);
-            ui.set_height(self.size.1);
+            ui.set_max_height(self.size.1);
 
             ui.vertical_centered(|ui| {
-               ui.add_space(20.0);
-               ui.spacing_mut().item_spacing.y = 20.0;
                ui.spacing_mut().button_padding = vec2(10.0, 10.0);
 
                if self.loading {
                   ui.add(Spinner::new().size(20.0).color(theme.colors.text));
-                  ui.add_space(10.0);
                   ui.label(RichText::new(self.message.clone()).size(theme.text_sizes.normal));
                } else {
+                  ui.spacing_mut().item_spacing.y = 20.0;
+
                   ui.label(RichText::new(self.message.clone()).size(theme.text_sizes.normal));
                   let visuals = theme.button_visuals();
                   let button = Button::new(RichText::new("Ok").size(theme.text_sizes.normal)).visuals(visuals);
@@ -117,7 +120,7 @@ pub struct GUI {
 
 impl Default for GUI {
    fn default() -> Self {
-      let theme = Theme::new(ThemeKind::Dark);
+      let theme = Theme::new(ThemeKind::TokyoNight);
       let argon2 = Argon2::balanced();
 
       Self {

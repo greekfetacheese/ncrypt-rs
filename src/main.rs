@@ -20,7 +20,7 @@ fn main() -> Result<(), eframe::Error> {
       instance_descriptor: InstanceDescriptor::new_without_display_handle(),
       display_handle: None,
       native_adapter_selector: None,
-      power_preference: wgpu::PowerPreference::LowPower,
+      power_preference: wgpu::PowerPreference::None,
    });
 
    let wgpu_config = WgpuConfiguration {
@@ -33,8 +33,8 @@ fn main() -> Result<(), eframe::Error> {
       viewport: egui::ViewportBuilder::default()
          .with_drag_and_drop(true)
          .with_decorations(true)
-         .with_inner_size([960.0, 550.0])
-         .with_min_inner_size([960.0, 550.0])
+         .with_inner_size([860.0, 550.0])
+         .with_min_inner_size([860.0, 550.0])
          .with_transparent(true),
       ..Default::default()
    };
